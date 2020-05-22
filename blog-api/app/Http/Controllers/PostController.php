@@ -15,7 +15,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::all();
-        return response()->json(['data' => $posts], 200);
+        return view('pages.index')->withPosts($posts);
     }
 
     /**
@@ -57,11 +57,7 @@ class PostController extends Controller
      */
     public function show($id) {
         $post = Post::find($id);
-        if ($post) {
-            return response()->json(['data' => $post], 200);
-        } else {
-            return response()->json(['error' => 'post not found'], 404);
-        }
+        return view('pages.view_post')->withPost($post);
     }
 
     /**

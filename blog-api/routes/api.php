@@ -16,4 +16,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('statuses', 'StatusesController');
 
-Route::resource('posts', 'PostController');
+// Route::resource('posts', 'PostController');
