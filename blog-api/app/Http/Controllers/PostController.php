@@ -15,7 +15,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::all();
-        return response()->json(['data' => $posts], 200);
+        return view('pages.index')->withPosts($posts);
     }
 
     /**
@@ -25,7 +25,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.create_post');
     }
 
     /**
@@ -35,17 +35,16 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        if ($request->title && $request->content && $request->status_id) {
+        if ($request->title && $request->content) {
             $post = new Post;
             
             $post->title = $request->title;
             $post->content = $request->content;
-            $post->status_id = $request->status_id;
             
             $post->save();
-            return response()->json(['data' => $post], 201);
+            return view('pages.view_post')->withPost($post);
         } else {
-            return response()->json(['error' => 'incomplete request body'], 400);
+            return redirect('/')->with('error', 'Post could not be created');
         }
     }
 
@@ -57,11 +56,10 @@ class PostController extends Controller
      */
     public function show($id) {
         $post = Post::find($id);
-        if ($post) {
-            return response()->json(['data' => $post], 200);
-        } else {
-            return response()->json(['error' => 'post not found'], 404);
+        if (!isset($post)){
+            return redirect('/')->with('error', 'Post not found');
         }
+        return view('pages.view_post')->withPost($post);
     }
 
     /**
@@ -72,7 +70,11 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        // 
+        $post = Post::find($id);
+        if (!isset($post)){
+            return redirect('/')->with('error', 'Post not found');
+        }
+        return view('pages.edit_post')->withPost($post);
     }
 
     /**
@@ -84,22 +86,36 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if ($request->title && $request->content && $request->status_id) {
+        if ($request->title && $request->content) {
             $post = Post::find($id);
 
             if ($post) {
                 $post->title = $request->title;
                 $post->content = $request->content;
-                $post->status_id = $request->status_id;
             
                 $post->save();
-                return response()->json(['data' => $post], 201);
+                return view('pages.view_post')->withPost($post);
             } else {
-                return response()->json(['error' => 'post not found'], 404);
+                return redirect('/')->with('error', 'Post not found');
             }
         } else {
-            return response()->json(['error' => 'incomplete request body'], 400);
+            return redirect('/')->with('error', 'Post could not be edited');
         }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function delete($id)
+    {
+        $post = Post::find($id);
+        if (!isset($post)){
+            return redirect('/')->with('error', 'Post not found');
+        }
+        return view('pages.delete_post')->withPost($post);
     }
 
     /**
@@ -114,9 +130,9 @@ class PostController extends Controller
         
         if ($post) {
             $post->delete();
-            return response()->json(['message' => 'post deleted'], 200);
+            return redirect('/')->with('success', 'Post has been deleted');
         } else {
-            return response()->json(['error' => 'post not found'], 404);
+            return redirect('/')->with('error', 'Post could not be deleted');
         }
     }
 }
